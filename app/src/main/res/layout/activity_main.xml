@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="16dp">
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Button" />
+
+        <Button
+            android:id="@+id/btn_scan_qr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Escanear QR" />
+
+        <TextView
+            android:id="@+id/tv_dni"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="DNI: "
+            android:paddingTop="20dp"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/tv_attendance_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Estado de asistencia: "
+            android:paddingTop="20dp"
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/buttonregistro"
+            android:layout_width="184dp"
+            android:layout_height="wrap_content"
+            android:text="Button" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

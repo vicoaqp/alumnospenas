@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "733394297395",
+    "project_id": "baseiensp",
+    "storage_bucket": "baseiensp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:733394297395:android:7c351324541816001a7946",
+        "android_client_info": {
+          "package_name": "com.colegio.iensdlp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4TmhjtjZNsMfcQfzPCbWXT0pdSSMmUU8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
