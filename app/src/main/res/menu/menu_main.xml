@@ -8,7 +8,11 @@
         android:orderInCategory="1"
         app:showAsAction="never" />
 
-
+    <item
+    android:id="@+id/action_regist"
+    android:title="Registro Hijo"
+    android:orderInCategory="2"
+    app:showAsAction="never" />
 
     <item
         android:id="@+id/action_logout"

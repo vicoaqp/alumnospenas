@@ -2,6 +2,7 @@ package com.colegio.iensdlp
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -11,6 +12,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.messaging.FirebaseMessaging
 
 class Login : AppCompatActivity() {
 
@@ -28,7 +30,7 @@ class Login : AppCompatActivity() {
 
         if (isLoggedIn) {
             val dni = sharedPreferences.getString("dni", "")
-            val userType = sharedPreferences.getString("userType", "alumno")
+            val userType = sharedPreferences.getString("userType", "padre")
 
             // Redirigir según el tipo de usuario
             if (userType != null) {
@@ -58,36 +60,37 @@ class Login : AppCompatActivity() {
         }
 
         btnRegister.setOnClickListener {
-            val intent = Intent(this, register::class.java)
+            val intent = Intent(this, ParentRegisterActivity::class.java)
             startActivity(intent)
         }
 
     }
 
     private fun loginUser(correo: String, password: String) {
-        db.collection("students")
+        // Verificar en la colección "padres"
+        db.collection("padres")
             .whereEqualTo("correo", correo)
-            .whereEqualTo("password", password)
+            .whereEqualTo("contraseña", password)
             .get()
             .addOnSuccessListener { documents ->
-                if (documents.isEmpty) {
-                    Toast.makeText(this, "Correo o contraseña incorrectos", Toast.LENGTH_SHORT).show()
-                } else {
+                if (!documents.isEmpty) {
                     for (document in documents) {
-                        val dni = document.getString("dni") ?: ""
-                        val userType = document.getString("tipo") ?: "alumno"
+                        val dni = document.getString("dnipadre") ?: ""
+                        val tipoUsuario = document.getString("tipo") ?: "padre" // Obtener el campo tipo (padre o administrador)
 
                         // Guardar el estado de inicio de sesión en SharedPreferences
                         val sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE)
                         val editor = sharedPreferences.edit()
                         editor.putBoolean("isLoggedIn", true)
                         editor.putString("dni", dni)
-                        editor.putString("userType", userType)
+                        editor.putString("userType", tipoUsuario)
                         editor.apply()
 
-                        // Redirigir según el tipo de usuario
-                        redirectToActivity(userType, dni)
+                        // Redirigir a la actividad correspondiente según el tipo de usuario
+                        redirectToActivity(tipoUsuario, dni)
                     }
+                } else {
+                    Toast.makeText(this, "Correo o contraseña incorrectos", Toast.LENGTH_SHORT).show()
                 }
             }
             .addOnFailureListener { exception ->
@@ -96,14 +99,16 @@ class Login : AppCompatActivity() {
     }
 
     private fun redirectToActivity(userType: String, dni: String?) {
+        // Redirigir a la actividad correspondiente según el tipo de usuario
         val intent = if (userType == "administrador") {
-            Intent(this, EventsActivity::class.java)
+            Intent(this, EventsActivity::class.java) // Administrador a EventsActivity
         } else {
-            Intent(this, record::class.java)
+            Intent(this, record::class.java) // Padre a RecordActivity
         }
         intent.putExtra("dni", dni)
         startActivity(intent)
         finish()
+
     }
 
 }

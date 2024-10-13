@@ -7,5 +7,6 @@ data class Student(
     val nombres: String = "",
     val password: String = "",
     val seccion: String = "",
+    val dnipapa: String = "",
     val correo: String = ""
 )

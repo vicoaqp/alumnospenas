@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.zxing.integration.android.IntentIntegrator
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -25,6 +26,7 @@ class EventsActivity : AppCompatActivity() {
     private lateinit var eventsAdapter: EventsAdapter
     private val eventsList = mutableListOf<Event>()
     private var isAdmin = false
+    private var dniPadre: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,7 +34,9 @@ class EventsActivity : AppCompatActivity() {
 
         // Recuperar el tipo de usuario desde SharedPreferences
         val sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE)
-        isAdmin = sharedPreferences.getString("userType", "alumno") == "administrador"
+        val userType = sharedPreferences.getString("userType", "padre")
+        isAdmin = userType == "administrador"
+        dniPadre = sharedPreferences.getString("dni", null)
 
         // Inicializar Firestore y RecyclerView
         db = FirebaseFirestore.getInstance()
@@ -62,7 +66,7 @@ class EventsActivity : AppCompatActivity() {
             // Si es administrador, mostrar las opciones "Escanear" y "Salir"
             bottomNavigationView.inflateMenu(R.menu.menu_admin)
         } else {
-            // Si es alumno, mostrar las opciones "Asistencias" y "Salir"
+            // Si es padre, mostrar las opciones "Asistencias" y "Salir"
             bottomNavigationView.inflateMenu(R.menu.menu_student)
         }
 
@@ -96,12 +100,16 @@ class EventsActivity : AppCompatActivity() {
     private fun handleBottomNavigation(menuItem: MenuItem): Boolean {
         when (menuItem.itemId) {
             R.id.action_assistances -> {
-                // Navegar a la pantalla de asistencias (Record) si el alumno selecciona "Asistencias"
-                startActivity(Intent(this,record::class.java))
+                // Navegar a la pantalla de asistencias (Record) si es padre
+                if (!isAdmin) {
+                    startActivity(Intent(this, record::class.java))
+                }
             }
             R.id.action_scan -> {
                 // Iniciar el escaneo de QR para ingresar la asistencia si es administrador
-                scanQRCode()
+                if (isAdmin) {
+                    scanQRCode()
+                }
             }
             R.id.action_logout -> {
                 // Cerrar sesión para cualquier usuario
@@ -135,32 +143,27 @@ class EventsActivity : AppCompatActivity() {
             super.onActivityResult(requestCode, resultCode, data)
         }
     }
-    private fun registerAttendance(dni: String) {
-        val db = FirebaseFirestore.getInstance()
+    private fun registerAttendance(dniAlumno: String) {
 
-        // Obtener la marca de tiempo actual
         val currentTimestamp = Date()
 
-        // Buscar el último registro de asistencia del estudiante por su DNI y fecha actual
+        // Buscar el último registro de asistencia del estudiante por su DNI
         db.collection("attendances")
-            .whereEqualTo("dni", dni)
-            .orderBy("timestamp", Query.Direction.DESCENDING) // Ordenar por la marca de tiempo más reciente
+            .whereEqualTo("dni", dniAlumno)
+            .orderBy("timestamp", Query.Direction.DESCENDING)
             .limit(1)
             .get()
             .addOnSuccessListener { documents ->
                 var tipoAsistencia = "Entrada" // Valor predeterminado
 
-                // Si existe un registro de asistencia en la fecha actual, alternar el tipo
                 if (!documents.isEmpty) {
                     val lastAttendance = documents.first()
                     val lastTipo = lastAttendance.getString("tipo") ?: "Salida"
-
-                    // Alternar entre "Entrada" y "Salida"
                     tipoAsistencia = if (lastTipo == "Entrada") "Salida" else "Entrada"
                 }
 
-                // Buscar al estudiante por su DNI para obtener más detalles
-                db.collection("students").whereEqualTo("dni", dni)
+                // Buscar al estudiante por su DNI para obtener detalles y el DNI del padre
+                db.collection("students").whereEqualTo("dni", dniAlumno)
                     .get()
                     .addOnSuccessListener { studentDocuments ->
                         if (studentDocuments.isEmpty) {
@@ -170,14 +173,16 @@ class EventsActivity : AppCompatActivity() {
 
                         for (document in studentDocuments) {
                             val student = document.toObject(Student::class.java)
+                            val dnipadre = student.dnipapa  // Obtener el DNI del padre
 
                             // Crear un registro de asistencia
                             val attendance = hashMapOf(
                                 "nombres" to student.nombres,
                                 "dni" to student.dni,
+                                "dnipadre" to dnipadre,
                                 "grado" to student.grado,
                                 "seccion" to student.seccion,
-                                "timestamp" to currentTimestamp, // Almacenar como Timestamp
+                                "timestamp" to currentTimestamp,
                                 "tipo" to tipoAsistencia
                             )
 

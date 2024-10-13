@@ -19,6 +19,7 @@ class register : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
+    private var dniPapa: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,27 +28,26 @@ class register : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
+        // Recuperar el DNI del padre desde SharedPreferences
+        val sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE)
+        dniPapa = sharedPreferences.getString("dni", null)
+
         val apellidos = findViewById<EditText>(R.id.editTextLastName)
-        val correo = findViewById<EditText>(R.id.editTextEmail)
         val dni = findViewById<EditText>(R.id.editTextDni)
         val grado = findViewById<EditText>(R.id.editTextGrado)
         val nombres = findViewById<EditText>(R.id.editTextName)
-        val password = findViewById<EditText>(R.id.editTextPassword)
         val seccion = findViewById<EditText>(R.id.editTextLastSeccion)
         val btnRegistrar = findViewById<Button>(R.id.buttonRegister)
 
-
         btnRegistrar.setOnClickListener {
             val apellidosText = apellidos.text.toString().trim()
-            val correoText = correo.text.toString().trim()
             val dniText = dni.text.toString().trim()
             val gradoText = grado.text.toString().trim()
             val nombresText = nombres.text.toString().trim()
-            val passwordText = password.text.toString().trim()
             val seccionText = seccion.text.toString().trim()
 
-            if (apellidosText.isNotEmpty() && correoText.isNotEmpty() && dniText.isNotEmpty() &&
-                gradoText.isNotEmpty() && nombresText.isNotEmpty() && passwordText.isNotEmpty() && seccionText.isNotEmpty()) {
+            if (apellidosText.isNotEmpty() && dniText.isNotEmpty() &&
+                gradoText.isNotEmpty() && nombresText.isNotEmpty() && seccionText.isNotEmpty()) {
 
                 // Verificar si el DNI ya está registrado
                 checkDniExists(dniText) { exists ->
@@ -56,13 +56,14 @@ class register : AppCompatActivity() {
                         Toast.makeText(this, "El DNI ya está registrado", Toast.LENGTH_SHORT).show()
                     } else {
                         // Proceder con el registro si el DNI no existe
-                        registerUser(apellidosText, correoText, dniText, gradoText, nombresText, passwordText, seccionText)
+                        registerStudent(apellidosText, nombresText, dniText, gradoText, seccionText)
                     }
                 }
             } else {
                 Toast.makeText(this, "Por favor complete todos los campos", Toast.LENGTH_SHORT).show()
             }
         }
+
 
     }
 
@@ -87,18 +88,15 @@ class register : AppCompatActivity() {
             }
     }
 
-    private fun registerUser(apellidos: String, correo: String, dni: String, grado: String, nombres: String, password: String, seccion: String) {
+    private fun registerStudent(apellidos: String, nombres: String, dni: String, grado: String, seccion: String) {
         val student = hashMapOf(
             "apellidos" to apellidos,
-            "correo" to correo,
+            "nombres" to nombres,
             "dni" to dni,
             "grado" to grado,
-            "nombres" to nombres,
-            "password" to password,
             "seccion" to seccion,
-            "tipo" to "alumno" // Tipo predeterminado al registrarse
+            "dnipapa" to dniPapa // Registrar el DNI del padre
         )
-
 
         // Agregar los datos a la colección "students"
         db.collection("students").document(dni).set(student)
@@ -109,8 +107,6 @@ class register : AppCompatActivity() {
             .addOnFailureListener { e ->
                 Toast.makeText(this, "Error al registrar al alumno: ${e.message}", Toast.LENGTH_SHORT).show()
             }
-
-
     }
 
 
