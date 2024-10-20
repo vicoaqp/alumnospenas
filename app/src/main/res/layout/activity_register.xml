@@ -27,7 +27,7 @@
                 android:id="@+id/textViewTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Registra tus datos"
+                android:text="Registra los datos del Alumno"
                 android:textSize="30sp"
                 android:textStyle="bold"
                 android:textColor="@android:color/black"
@@ -76,25 +76,25 @@
                         android:padding="12dp"
                         android:layout_marginBottom="12dp" />
 
-
-                    <EditText
-                        android:id="@+id/editTextGrado"
+                    <!-- AutoCompleteTextView para seleccionar Grado (1-5) -->
+                    <AutoCompleteTextView
+                        android:id="@+id/autoCompleteTextViewGrado"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Grado"
+                        android:hint="Selecciona Grado"
                         android:background="@drawable/rounded_edittext"
                         android:padding="12dp"
                         android:layout_marginBottom="12dp" />
 
-                    <EditText
-                        android:id="@+id/editTextLastSeccion"
+                    <!-- AutoCompleteTextView para seleccionar Sección (a-d) -->
+                    <AutoCompleteTextView
+                        android:id="@+id/autoCompleteTextViewSeccion"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Seccion"
+                        android:hint="Selecciona Sección"
                         android:background="@drawable/rounded_edittext"
                         android:padding="12dp"
                         android:layout_marginBottom="12dp" />
-
 
                     <Button
                         android:id="@+id/buttonRegister"

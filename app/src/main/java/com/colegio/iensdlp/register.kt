@@ -2,6 +2,8 @@ package com.colegio.iensdlp
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -28,23 +30,44 @@ class register : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
+        val autoCompleteTextViewGrado: AutoCompleteTextView = findViewById(R.id.autoCompleteTextViewGrado)
+        val autoCompleteTextViewSeccion: AutoCompleteTextView = findViewById(R.id.autoCompleteTextViewSeccion)
+
+        // Lista de valores para Grado (1, 2, 3, 4, 5)
+        val grados = arrayOf("1", "2", "3", "4", "5")
+        val gradoAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, grados)
+        autoCompleteTextViewGrado.setAdapter(gradoAdapter)
+
+// Lista de valores para Sección (a, b, c, d)
+        val secciones = arrayOf("a", "b", "c", "d")
+        val seccionAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, secciones)
+        autoCompleteTextViewSeccion.setAdapter(seccionAdapter)
+
+        // Asegúrate de que el dropdown se muestre al hacer clic
+        autoCompleteTextViewGrado.setOnClickListener {
+            autoCompleteTextViewGrado.showDropDown() // Mostrar el dropdown de grado al hacer clic
+        }
+
+        autoCompleteTextViewSeccion.setOnClickListener {
+            autoCompleteTextViewSeccion.showDropDown() // Mostrar el dropdown de sección al hacer clic
+        }
+
+
         // Recuperar el DNI del padre desde SharedPreferences
         val sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE)
         dniPapa = sharedPreferences.getString("dni", null)
 
         val apellidos = findViewById<EditText>(R.id.editTextLastName)
         val dni = findViewById<EditText>(R.id.editTextDni)
-        val grado = findViewById<EditText>(R.id.editTextGrado)
         val nombres = findViewById<EditText>(R.id.editTextName)
-        val seccion = findViewById<EditText>(R.id.editTextLastSeccion)
         val btnRegistrar = findViewById<Button>(R.id.buttonRegister)
 
         btnRegistrar.setOnClickListener {
             val apellidosText = apellidos.text.toString().trim()
             val dniText = dni.text.toString().trim()
-            val gradoText = grado.text.toString().trim()
             val nombresText = nombres.text.toString().trim()
-            val seccionText = seccion.text.toString().trim()
+            val gradoText = autoCompleteTextViewGrado.text.toString().trim() // Obtener el valor seleccionado del Spinner
+            val seccionText = autoCompleteTextViewSeccion.text.toString().trim() // Obtener el valor seleccionado del Spinner
 
             if (apellidosText.isNotEmpty() && dniText.isNotEmpty() &&
                 gradoText.isNotEmpty() && nombresText.isNotEmpty() && seccionText.isNotEmpty()) {

@@ -9,10 +9,15 @@ import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.navigation.NavigationView
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.Timestamp
@@ -31,6 +36,10 @@ class record : AppCompatActivity() {
     private var selectedYear: Int = Calendar.getInstance().get(Calendar.YEAR)
     private var dniPadre: String? = null
 
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var navigationView: NavigationView
+
+
     // Referencia al TextView del mes seleccionado
     private lateinit var tvSelectedMonth: TextView
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,6 +47,33 @@ class record : AppCompatActivity() {
         setContentView(R.layout.activity_record)
 
         try {
+
+            // Inicializar el DrawerLayout y NavigationView
+            drawerLayout = findViewById(R.id.drawer_layout)
+            navigationView = findViewById(R.id.navigation_view)
+
+            // Configurar el Toolbar como ActionBar
+            val toolbar = findViewById<Toolbar>(R.id.toolbar)
+            setSupportActionBar(toolbar)
+
+            // Configurar el ActionBarDrawerToggle
+            val toggle = ActionBarDrawerToggle(
+                this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
+            )
+            drawerLayout.addDrawerListener(toggle)
+            toggle.syncState()
+
+            // Configurar el listener para la opción de "Salir" en el NavigationView
+            navigationView.setNavigationItemSelectedListener { menuItem ->
+                when (menuItem.itemId) {
+                    R.id.nav_logout -> {
+                        logoutUser()
+                        true
+                    }
+                    else -> false
+                }
+            }
+
             val sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE)
             val dniPadre = sharedPreferences.getString("dni", null)
 
@@ -129,9 +165,7 @@ class record : AppCompatActivity() {
             R.id.action_regist -> {
                 startActivity(Intent(this, register::class.java))
             }
-            R.id.action_logout -> {
-                logoutUser()
-            }
+
         }
     }
     // Método para obtener los alumnos relacionados con el DNI del padre
@@ -205,6 +239,13 @@ class record : AppCompatActivity() {
         val intent = Intent(this, Login::class.java)
         startActivity(intent)
         finish()
+    }
+    override fun onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
+        }
     }
 
 }
