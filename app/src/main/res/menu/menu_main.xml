@@ -5,12 +5,14 @@
     <item
         android:id="@+id/action_events"
         android:title="Eventos"
+        android:icon="@drawable/ic_calendario"
         android:orderInCategory="1"
         app:showAsAction="never" />
 
     <item
     android:id="@+id/action_regist"
     android:title="Registro Hijo"
+        android:icon="@drawable/ic_alumno"
     android:orderInCategory="2"
     app:showAsAction="never" />
 
