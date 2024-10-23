@@ -11,5 +11,9 @@
             android:id="@+id/nav_logout"
             android:title="Salir"
             />
+        <item
+            android:id="@+id/nav_horario"
+            android:title="Horario"
+            />
     </group>
 </menu>

@@ -70,6 +70,10 @@ class record : AppCompatActivity() {
                         logoutUser()
                         true
                     }
+                    R.id.nav_horario -> {
+                        startActivity(Intent(this, Horarios::class.java))
+                        true
+                    }
                     else -> false
                 }
             }

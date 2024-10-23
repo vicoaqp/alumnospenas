@@ -17,12 +17,14 @@
         android:theme="@style/Theme.Iensdlp"
         tools:targetApi="31">
         <activity
+            android:name=".Horarios"
+            android:exported="false" />
+        <activity
             android:name=".ParentRegisterActivity"
             android:exported="false" />
         <activity
             android:name=".EventsActivity"
-            android:exported="false"
-            />
+            android:exported="false" />
         <activity
             android:name=".record"
             android:exported="false" />
