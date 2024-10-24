@@ -4,6 +4,7 @@
     <item
         android:id="@+id/action_assistances"
         android:title="Asistencias"
+        android:icon="@drawable/ic_alumno"
         android:orderInCategory="1"
         app:showAsAction="never" />
 
