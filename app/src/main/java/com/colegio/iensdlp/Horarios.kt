@@ -84,7 +84,6 @@ class Horarios : AppCompatActivity() {
     private fun fetchCursosByDay(dayOfWeek: Int) {
         if (dniPadre == null) return
 
-        // Consultar los alumnos relacionados con el padre
         db = FirebaseFirestore.getInstance()
         db.collection("students")
             .whereEqualTo("dnipapa", dniPadre)
@@ -95,14 +94,14 @@ class Horarios : AppCompatActivity() {
                     Toast.makeText(this, "No se encontraron estudiantes", Toast.LENGTH_SHORT).show()
                     return@addOnSuccessListener
                 }
+
                 for (document in documents) {
                     val grado = document.getString("grado") ?: ""
                     val seccion = document.getString("seccion") ?: ""
 
-                    Toast.makeText(this, "grado"+grado, Toast.LENGTH_SHORT).show()
-                    Toast.makeText(this, "seccion"+seccion, Toast.LENGTH_SHORT).show()
-                    Toast.makeText(this, "dia"+ dayOfWeek, Toast.LENGTH_SHORT).show()
-                    // Ahora que tenemos grado y sección, consultar los cursos del día
+                    // Verificar si estamos obteniendo grado y sección correctos
+                    Log.d("FirestoreDebug", "Grado: $grado, Sección: $seccion")
+
                     db.collection("cursos")
                         .whereEqualTo("grado", grado)
                         .whereEqualTo("seccion", seccion)
@@ -110,28 +109,38 @@ class Horarios : AppCompatActivity() {
                         .get()
                         .addOnSuccessListener { cursosSnapshot ->
                             val cursosList = mutableListOf<Curso>()
+
                             for (cursoDocument in cursosSnapshot) {
                                 val nombreCurso = cursoDocument.getString("nombre") ?: ""
                                 val profesor = cursoDocument.getString("profesor") ?: ""
                                 val horaInicio = cursoDocument.getString("horaInicio") ?: ""
                                 val horaFin = cursoDocument.getString("horaFin") ?: ""
 
-                                Toast.makeText(this, "seccion"+ nombreCurso, Toast.LENGTH_SHORT).show()
+                                // Verificar si los datos de los cursos son correctos
+                                Log.d("FirestoreDebug", "Curso: $nombreCurso, Profesor: $profesor")
 
                                 val curso = Curso(nombreCurso, profesor, horaInicio, horaFin)
                                 cursosList.add(curso)
                             }
 
-                            //recyclerView.layoutManager = LinearLayoutManager(this)
-                            //cursosAdapter = CursosAdapter(emptyList())
-                            //recyclerView.adapter = cursosAdapter
+                            // Verificar si la lista de cursos está vacía
+                            if (cursosList.isEmpty()) {
+                                Log.d("FirestoreDebug", "No se encontraron cursos para el día seleccionado")
+                                Toast.makeText(this, "No hay cursos para este día", Toast.LENGTH_SHORT).show()
+                            }
 
+                            // Actualizar el adaptador con la lista de cursos
                             cursosAdapter.updateCursos(cursosList)
+                        }
+                        .addOnFailureListener { exception ->
+                            Log.e("FirestoreError", "Error al obtener cursos: ${exception.message}")
+                            Toast.makeText(this, "Error al obtener cursos: ${exception.message}", Toast.LENGTH_SHORT).show()
                         }
                 }
             }
             .addOnFailureListener { exception ->
-                Toast.makeText(this, "Error al obtener cursos: ${exception.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Error al obtener estudiantes: ${exception.message}", Toast.LENGTH_SHORT).show()
+                Log.e("FirestoreError", "Error al obtener estudiantes: ${exception.message}")
             }
     }
 
