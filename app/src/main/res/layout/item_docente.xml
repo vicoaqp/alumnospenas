@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:cardview="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    cardview:cardCornerRadius="12dp"
+    cardview:cardElevation="4dp"
+    cardview:cardBackgroundColor="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Título del nombre del docente en negrita y tamaño más grande -->
+        <TextView
+            android:id="@+id/tvNombres"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nombres"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="@color/black" />
+
+        <!-- Apellidos debajo del nombre, con margen superior para separación -->
+        <TextView
+            android:id="@+id/tvApellidos"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Apellidos"
+            android:textSize="16sp"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/black" />
+
+        <!-- Especialidad en cursiva para resaltar el área de conocimiento -->
+        <TextView
+            android:id="@+id/tvEspecialidad"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Especialidad"
+            android:textStyle="italic"
+            android:textSize="16sp"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/black" />
+
+        <!-- Información de contacto en sección separada -->
+        <TextView
+            android:id="@+id/tvCelular"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Celular"
+            android:textSize="14sp"
+            android:layout_marginTop="8dp"
+            android:textColor="@color/gray" />
+
+        <!-- Grados y Secciones -->
+        <TextView
+            android:id="@+id/tvGrados"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Grados"
+            android:textSize="14sp"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/gray" />
+
+        <TextView
+            android:id="@+id/tvSecciones"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Secciones"
+            android:textSize="14sp"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/gray" />
+
+        <!-- Sección de iconos de llamada y WhatsApp -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end"
+            android:layout_marginTop="8dp">
+
+            <!-- Icono de Llamada -->
+            <ImageView
+                android:id="@+id/ivCall"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="16dp"
+                android:src="@drawable/llamada"
+                android:contentDescription="Llamar"
+                android:clickable="true"
+                android:focusable="true"
+                />
+
+            <!-- Icono de WhatsApp -->
+            <ImageView
+                android:id="@+id/ivWhatsApp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/mensajedos"
+                android:contentDescription="Enviar mensaje de WhatsApp"
+                android:clickable="true"
+                android:focusable="true"
+                 />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

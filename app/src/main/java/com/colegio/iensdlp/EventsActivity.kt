@@ -59,8 +59,20 @@ class EventsActivity : AppCompatActivity() {
         // Configurar la opción de "Salir" en el NavigationView
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
+                R.id.nav_info -> {
+                    startActivity(Intent(this, InfoColeActivity::class.java))
+                    true
+                }
                 R.id.nav_logout -> {
                     logoutUser()
+                    true
+                }
+                R.id.nav_horario -> {
+                    startActivity(Intent(this, Horarios::class.java))
+                    true
+                }
+                R.id.nav_docentes -> {
+                    startActivity(Intent(this, DocenteActivity::class.java)) // Agrega la navegación a DocenteActivity
                     true
                 }
                 else -> false
@@ -291,3 +303,4 @@ class EventsActivity : AppCompatActivity() {
         }
     }
 }
+
