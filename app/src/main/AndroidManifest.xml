@@ -17,6 +17,9 @@
         android:theme="@style/Theme.Iensdlp"
         tools:targetApi="31">
         <activity
+            android:name=".biblioteca"
+            android:exported="false" />
+        <activity
             android:name=".InfoColeActivity"
             android:exported="false" />
         <activity

@@ -39,52 +39,16 @@ class record : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
 
-
     // Referencia al TextView del mes seleccionado
     private lateinit var tvSelectedMonth: TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_record)
 
         try {
-
-            // Inicializar el DrawerLayout y NavigationView
-            drawerLayout = findViewById(R.id.drawer_layout)
-            navigationView = findViewById(R.id.navigation_view)
-
-            // Configurar el Toolbar como ActionBar
-            val toolbar = findViewById<Toolbar>(R.id.toolbar)
-            setSupportActionBar(toolbar)
-
-            // Configurar el ActionBarDrawerToggle
-            val toggle = ActionBarDrawerToggle(
-                this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
-            )
-            drawerLayout.addDrawerListener(toggle)
-            toggle.syncState()
-
-            // Configurar el listener para la opción de "Salir" en el NavigationView
-            navigationView.setNavigationItemSelectedListener { menuItem ->
-                when (menuItem.itemId) {
-                    R.id.nav_info -> {
-                        startActivity(Intent(this, InfoColeActivity::class.java))
-                        true
-                    }
-                    R.id.nav_logout -> {
-                        logoutUser()
-                        true
-                    }
-                    R.id.nav_horario -> {
-                        startActivity(Intent(this, Horarios::class.java))
-                        true
-                    }
-                    R.id.nav_docentes -> {
-                        startActivity(Intent(this, DocenteActivity::class.java)) // Agrega la navegación a DocenteActivity
-                        true
-                    }
-                    else -> false
-                }
-            }
+            // Configuración de UI y SharedPreferences
+            initializeUI()
 
             val sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE)
             val dniPadre = sharedPreferences.getString("dni", null)
@@ -94,96 +58,86 @@ class record : AppCompatActivity() {
                 Log.e("RecordActivity", "DNI no encontrado en SharedPreferences")
                 return
             }
+
             // Inicializar Firestore
             db = FirebaseFirestore.getInstance()
 
-            // Inicializar RecyclerView
-            recyclerView = findViewById(R.id.rvAttendances)
-            recyclerView.layoutManager = LinearLayoutManager(this)
-
-            // Configurar el adaptador
-            attendanceAdapter = AttendanceAdapter()
-            recyclerView.adapter = attendanceAdapter
-
-
-            // Obtener el TextView que muestra el mes seleccionado
-            tvSelectedMonth = findViewById(R.id.tvSelectedMonth)
-
-            // Actualizar el texto del mes seleccionado por defecto (mes y año actuales)
-            updateSelectedMonthText()
-
             // Obtener los alumnos relacionados y sus asistencias para el mes actual
-            fetchAlumnosRelacionados(dniPadre!!, selectedMonth, selectedYear)
-
-            // Configurar BottomNavigationView
-            val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
-            bottomNavigationView.setOnNavigationItemSelectedListener { menuItem ->
-                handleBottomNavigation(menuItem)
-                true
-            }
-
-            // Listener para el botón de selección de mes
-            val btnSelectMonth = findViewById<Button>(R.id.btnSelectMonth)
-            btnSelectMonth.setOnClickListener {
-                showMonthPickerDialog(dniPadre!!)  // Mostrar diálogo para seleccionar el mes
-            }
+            fetchAlumnosRelacionados(dniPadre, selectedMonth, selectedYear)
 
         } catch (e: Exception) {
             Log.e("RecordActivity", "Error durante la inicialización de la actividad", e)
             Toast.makeText(this, "Ocurrió un error al inicializar la pantalla: ${e.message}", Toast.LENGTH_LONG).show()
         }
-
     }
 
-    private fun showMonthPickerDialog(dniPadre: String) {
-        val calendar = Calendar.getInstance()
-        val dialog = DatePickerDialog(
-            this,
-            { _, year, month, _ ->
-                // Actualizar el mes y año seleccionados
-                selectedMonth = month
-                selectedYear = year
-                // Actualizar el texto del mes seleccionado
-                updateSelectedMonthText()
-                // Volver a cargar los registros de asistencia del mes seleccionado
-                fetchAlumnosRelacionados(dniPadre, selectedMonth, selectedYear)
-            },
-            selectedYear, selectedMonth, calendar.get(Calendar.DAY_OF_MONTH)
+    private fun initializeUI() {
+        // Inicializar DrawerLayout, NavigationView, Toolbar y RecyclerView
+        drawerLayout = findViewById(R.id.drawer_layout)
+        navigationView = findViewById(R.id.navigation_view)
+
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+
+        val toggle = ActionBarDrawerToggle(
+            this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
         )
-        dialog.datePicker.findViewById<View>(
-            resources.getIdentifier("day", "id", "android")
-        )?.visibility = View.GONE // Ocultar la selección de día
-        dialog.show()
-    }
+        drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
 
-    private fun updateSelectedMonthText() {
-        val calendar = Calendar.getInstance()
-        calendar.set(Calendar.MONTH, selectedMonth)
-        calendar.set(Calendar.YEAR, selectedYear)
+        navigationView.setNavigationItemSelectedListener { menuItem ->
+            handleNavigationItemSelected(menuItem)
+        }
 
-        val dateFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
-        val formattedDate = dateFormat.format(calendar.time)
+        recyclerView = findViewById(R.id.rvAttendances)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        attendanceAdapter = AttendanceAdapter()
+        recyclerView.adapter = attendanceAdapter
 
-        tvSelectedMonth.text = "Mostrando asistencia de: $formattedDate"
-    }
+        tvSelectedMonth = findViewById(R.id.tvSelectedMonth)
+        updateSelectedMonthText()
 
+        val btnSelectMonth = findViewById<Button>(R.id.btnSelectMonth)
+        btnSelectMonth.setOnClickListener {
+            showMonthPickerDialog()
+        }
 
-    // Función para manejar las selecciones del menú inferior
-    private fun handleBottomNavigation(menuItem: MenuItem) {
-        when (menuItem.itemId) {
-            R.id.action_events -> {
-                startActivity(Intent(this, EventsActivity::class.java))
-            }
-            R.id.action_regist -> {
-                startActivity(Intent(this, register::class.java))
-            }
-
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+        bottomNavigationView.setOnNavigationItemSelectedListener { menuItem ->
+            handleBottomNavigation(menuItem)
+            true
         }
     }
-    // Método para obtener los alumnos relacionados con el DNI del padre
+
+    private fun handleNavigationItemSelected(menuItem: MenuItem): Boolean {
+        when (menuItem.itemId) {
+            R.id.nav_info -> {
+                startActivity(Intent(this, InfoColeActivity::class.java))
+                return true
+            }
+            R.id.nav_horario -> {
+                startActivity(Intent(this, Horarios::class.java))
+                return true
+            }
+            R.id.nav_docentes -> {
+                startActivity(Intent(this, DocenteActivity::class.java))
+                return true
+            }
+            R.id.nav_biblioteca -> {
+                startActivity(Intent(this, biblioteca::class.java)) // Navegar a la actividad Libreria
+                return true
+            }
+            R.id.nav_logout -> {
+                logoutUser()
+                return true
+            }
+            else -> return false
+        }
+    }
+
     private fun fetchAlumnosRelacionados(dniPadre: String, month: Int, year: Int) {
         db.collection("students")
-            .whereEqualTo("dnipapa", dniPadre)  // Buscar alumnos relacionados con el padre
+            .whereEqualTo("dnipapa", dniPadre)
             .get()
             .addOnSuccessListener { studentDocuments ->
                 val dniAlumnos = mutableListOf<String>()
@@ -191,12 +145,14 @@ class record : AppCompatActivity() {
                 for (document in studentDocuments) {
                     val dniAlumno = document.getString("dni") ?: ""
                     dniAlumnos.add(dniAlumno)
+
+                    // Guarda cada DNI de alumno en SharedPreferences
+                    saveDniAlumnoToPreferences(dniAlumno)
                 }
 
                 if (dniAlumnos.isEmpty()) {
                     Toast.makeText(this, "No se encontraron alumnos relacionados", Toast.LENGTH_SHORT).show()
                 } else {
-                    // Ahora que tenemos los DNIs de los alumnos, buscar sus registros de asistencia
                     fetchAttendanceRecords(dniAlumnos, month, year)
                 }
             }
@@ -205,19 +161,25 @@ class record : AppCompatActivity() {
             }
     }
 
-    /// Función para obtener los registros de asistencia del mes y año seleccionados
+    private fun saveDniAlumnoToPreferences(dniAlumno: String) {
+        val sharedPreferences = getSharedPreferences("AlumnoPreferences", MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putString("dniAlumno", dniAlumno)
+        editor.apply()
+    }
+
     private fun fetchAttendanceRecords(dniAlumnos: List<String>, month: Int, year: Int) {
         val calendar = Calendar.getInstance()
         calendar.set(Calendar.YEAR, year)
         calendar.set(Calendar.MONTH, month)
         calendar.set(Calendar.DAY_OF_MONTH, 1)
-        val startDate = calendar.time  // Primer día del mes seleccionado
+        val startDate = calendar.time
 
         calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH))
-        val endDate = calendar.time  // Último día del mes seleccionado
+        val endDate = calendar.time
 
         db.collection("attendances")
-            .whereIn("dni", dniAlumnos)  // Filtrar por los DNIs de los alumnos relacionados
+            .whereIn("dni", dniAlumnos)
             .whereGreaterThanOrEqualTo("timestamp", startDate)
             .whereLessThanOrEqualTo("timestamp", endDate)
             .orderBy("timestamp", Query.Direction.DESCENDING)
@@ -235,11 +197,51 @@ class record : AppCompatActivity() {
                     val attendance = Attendance(nombres, grado, timestamp, seccion, dni, tipo)
                     newAttendanceList.add(attendance)
                 }
-                attendanceAdapter.submitList(newAttendanceList)  // Actualizar la lista del adaptador
+                attendanceAdapter.submitList(newAttendanceList)
             }
             .addOnFailureListener { exception ->
                 Toast.makeText(this, "Error al obtener los registros: ${exception.message}", Toast.LENGTH_SHORT).show()
             }
+    }
+
+    private fun updateSelectedMonthText() {
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.MONTH, selectedMonth)
+        calendar.set(Calendar.YEAR, selectedYear)
+
+        val dateFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
+        val formattedDate = dateFormat.format(calendar.time)
+
+        tvSelectedMonth.text = "Mostrando asistencia de: $formattedDate"
+    }
+
+    private fun showMonthPickerDialog() {
+        val calendar = Calendar.getInstance()
+        val dialog = DatePickerDialog(
+            this,
+            { _, year, month, _ ->
+                selectedMonth = month
+                selectedYear = year
+                updateSelectedMonthText()
+                fetchAlumnosRelacionados(dniPadre!!, selectedMonth, selectedYear)
+            },
+            selectedYear, selectedMonth, calendar.get(Calendar.DAY_OF_MONTH)
+        )
+        dialog.datePicker.findViewById<View>(
+            resources.getIdentifier("day", "id", "android")
+        )?.visibility = View.GONE
+        dialog.show()
+    }
+
+    private fun handleBottomNavigation(menuItem: MenuItem) {
+        when (menuItem.itemId) {
+            R.id.action_events -> {
+                startActivity(Intent(this, EventsActivity::class.java))
+            }
+            R.id.action_regist -> {
+                startActivity(Intent(this, register::class.java))
+            }
+        }
     }
 
     private fun logoutUser() {
@@ -252,6 +254,7 @@ class record : AppCompatActivity() {
         startActivity(intent)
         finish()
     }
+
     override fun onBackPressed() {
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START)
@@ -259,5 +262,4 @@ class record : AppCompatActivity() {
             super.onBackPressed()
         }
     }
-
 }
