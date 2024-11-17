@@ -1,6 +1,7 @@
 package com.colegio.iensdlp
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
@@ -38,23 +39,26 @@ class register : AppCompatActivity() {
         val gradoAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, grados)
         autoCompleteTextViewGrado.setAdapter(gradoAdapter)
 
-// Lista de valores para Sección (a, b, c, d)
+        // Lista de valores para Sección (a, b, c, d)
         val secciones = arrayOf("a", "b", "c", "d")
         val seccionAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, secciones)
         autoCompleteTextViewSeccion.setAdapter(seccionAdapter)
 
+        // Establecer valores por defecto
+        autoCompleteTextViewGrado.setText("1", false) // Valor predeterminado de grado
+        autoCompleteTextViewSeccion.setText("a", false) // Valor predeterminado de sección
+
         // Asegúrate de que el dropdown se muestre al hacer clic
         autoCompleteTextViewGrado.setOnClickListener {
-            autoCompleteTextViewGrado.showDropDown() // Mostrar el dropdown de grado al hacer clic
+            autoCompleteTextViewGrado.showDropDown()
         }
 
         autoCompleteTextViewSeccion.setOnClickListener {
-            autoCompleteTextViewSeccion.showDropDown() // Mostrar el dropdown de sección al hacer clic
+            autoCompleteTextViewSeccion.showDropDown()
         }
 
-
         // Recuperar el DNI del padre desde SharedPreferences
-        val sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE)
+        val sharedPreferences: SharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE)
         dniPapa = sharedPreferences.getString("dni", null)
 
         val apellidos = findViewById<EditText>(R.id.editTextLastName)
@@ -63,11 +67,16 @@ class register : AppCompatActivity() {
         val btnRegistrar = findViewById<Button>(R.id.buttonRegister)
 
         btnRegistrar.setOnClickListener {
-            val apellidosText = apellidos.text.toString().trim()
-            val dniText = dni.text.toString().trim()
-            val nombresText = nombres.text.toString().trim()
+            var apellidosText = apellidos.text.toString().trim()
+            var dniText = dni.text.toString().trim()
+            var nombresText = nombres.text.toString().trim()
             val gradoText = autoCompleteTextViewGrado.text.toString().trim() // Obtener el valor seleccionado del Spinner
-            val seccionText = autoCompleteTextViewSeccion.text.toString().trim() // Obtener el valor seleccionado del Spinner
+            var seccionText = autoCompleteTextViewSeccion.text.toString().trim() // Obtener el valor seleccionado del Spinner
+
+            // Convertir los nombres, apellidos y sección a minúsculas
+            apellidosText = apellidosText.lowercase()
+            nombresText = nombresText.lowercase()
+            seccionText = seccionText.lowercase()
 
             if (apellidosText.isNotEmpty() && dniText.isNotEmpty() &&
                 gradoText.isNotEmpty() && nombresText.isNotEmpty() && seccionText.isNotEmpty()) {
@@ -86,27 +95,17 @@ class register : AppCompatActivity() {
                 Toast.makeText(this, "Por favor complete todos los campos", Toast.LENGTH_SHORT).show()
             }
         }
-
-
     }
 
-
-    // Verificar si el DNI ya existe en la colección "students"
     private fun checkDniExists(dni: String, callback: (Boolean) -> Unit) {
-        db.collection("students").document(dni)
+        db.collection("students")
+            .whereEqualTo("dni", dni)
             .get()
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    // El documento con el DNI ya existe
-                    callback(true)
-                } else {
-                    // El documento no existe, el DNI está disponible
-                    callback(false)
-                }
+            .addOnSuccessListener { documents ->
+                callback(documents.size() > 0)
             }
-            .addOnFailureListener { e ->
-                // Manejo de error al consultar Firestore
-                Toast.makeText(this, "Error al verificar el DNI: ${e.message}", Toast.LENGTH_SHORT).show()
+            .addOnFailureListener {
+                Toast.makeText(this, "Error al verificar el DNI", Toast.LENGTH_SHORT).show()
                 callback(false)
             }
     }
@@ -118,19 +117,17 @@ class register : AppCompatActivity() {
             "dni" to dni,
             "grado" to grado,
             "seccion" to seccion,
-            "dnipapa" to dniPapa // Registrar el DNI del padre
+            "dniPapa" to dniPapa
         )
 
-        // Agregar los datos a la colección "students"
-        db.collection("students").document(dni).set(student)
+        db.collection("students")
+            .add(student)
             .addOnSuccessListener {
-                Toast.makeText(this, "Alumno registrado con éxito", Toast.LENGTH_SHORT).show()
-                finish() // Cerrar la actividad después de registrar al alumno
+                Toast.makeText(this, "Alumno registrado exitosamente", Toast.LENGTH_SHORT).show()
+                finish()
             }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, "Error al registrar al alumno: ${e.message}", Toast.LENGTH_SHORT).show()
+            .addOnFailureListener {
+                Toast.makeText(this, "Error al registrar al alumno", Toast.LENGTH_SHORT).show()
             }
     }
-
-
 }

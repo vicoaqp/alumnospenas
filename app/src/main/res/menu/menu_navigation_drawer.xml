@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <group android:checkableBehavior="single">
-        <!-- Otras opciones que puedas necesitar -->
+        <!-- Opciones existentes -->
         <item
             android:id="@+id/nav_info"
             android:icon="@drawable/ic_info"
@@ -14,29 +14,37 @@
         <item
             android:id="@+id/nav_horario"
             android:icon="@drawable/ic_schedule"
-            android:contentDescription="Horario de clases"
             android:title="Horario"
+            android:contentDescription="Horario de clases"
             app:showAsAction="ifRoom" />
 
         <item
             android:id="@+id/nav_docentes"
             android:icon="@drawable/ic_teacher"
-            android:contentDescription="Docentes de Aula"
             android:title="Docentes"
+            android:contentDescription="Docentes de Aula"
             app:showAsAction="ifRoom" />
 
         <item
             android:id="@+id/nav_biblioteca"
             android:icon="@drawable/ic_library"
-            android:contentDescription="Biblioteca"
             android:title="Biblioteca"
+            android:contentDescription="Biblioteca"
+            app:showAsAction="ifRoom" />
+
+
+        <item
+            android:id="@+id/nav_incidencias"
+            android:icon="@drawable/ic_incident"
+            android:title="Incidencias en Aula"
+            android:contentDescription="Incidencias en Aula"
             app:showAsAction="ifRoom" />
 
         <item
             android:id="@+id/nav_logout"
             android:icon="@drawable/ic_logout"
-            android:contentDescription="Cerrar sesión"
             android:title="Salir del Aplicativo"
+            android:contentDescription="Cerrar sesión"
             app:showAsAction="never" />
     </group>
 </menu>

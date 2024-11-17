@@ -124,7 +124,12 @@ class record : AppCompatActivity() {
                 return true
             }
             R.id.nav_biblioteca -> {
-                startActivity(Intent(this, biblioteca::class.java)) // Navegar a la actividad Libreria
+                startActivity(Intent(this, biblioteca::class.java))
+                return true
+            }
+            R.id.nav_incidencias -> {
+                // Redirigir a EventoSalonActivity
+                startActivity(Intent(this, eventosalon::class.java))
                 return true
             }
             R.id.nav_logout -> {
