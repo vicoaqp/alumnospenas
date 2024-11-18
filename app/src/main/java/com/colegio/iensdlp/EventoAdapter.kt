@@ -26,7 +26,7 @@ class EventoAdapter(private val eventos: List<Evento>) : RecyclerView.Adapter<Ev
         } else {
             "Fecha no disponible"
         }
-
+        holder.cursoTextView.text = evento.curso
         holder.timestampTextView.text = formattedDate
         holder.descripcionTextView.text = evento.descripcion
         holder.tipoEventoTextView.text = evento.tipoevento
@@ -35,6 +35,7 @@ class EventoAdapter(private val eventos: List<Evento>) : RecyclerView.Adapter<Ev
     override fun getItemCount(): Int = eventos.size
 
     class EventoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val cursoTextView: TextView = itemView.findViewById(R.id.cursoTextView)
         val timestampTextView: TextView = itemView.findViewById(R.id.timestampTextView)
         val descripcionTextView: TextView = itemView.findViewById(R.id.descripcionTextView)
         val tipoEventoTextView: TextView = itemView.findViewById(R.id.tipoEventoTextView)
