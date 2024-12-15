@@ -30,6 +30,7 @@ class EventoAdapter(private val eventos: List<Evento>) : RecyclerView.Adapter<Ev
         holder.timestampTextView.text = formattedDate
         holder.descripcionTextView.text = evento.descripcion
         holder.tipoEventoTextView.text = evento.tipoevento
+        holder.docenteTextView.text=evento.docente
     }
 
     override fun getItemCount(): Int = eventos.size
@@ -39,5 +40,6 @@ class EventoAdapter(private val eventos: List<Evento>) : RecyclerView.Adapter<Ev
         val timestampTextView: TextView = itemView.findViewById(R.id.timestampTextView)
         val descripcionTextView: TextView = itemView.findViewById(R.id.descripcionTextView)
         val tipoEventoTextView: TextView = itemView.findViewById(R.id.tipoEventoTextView)
+        val docenteTextView: TextView = itemView.findViewById(R.id.docenteTextView)
     }
 }
